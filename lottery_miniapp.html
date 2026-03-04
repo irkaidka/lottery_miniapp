@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GlobalNet Розыгрыш</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0f1a;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 24px 16px 40px;
+    overflow-x: hidden;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .event-label {
+    font-size: 11px;
+    color: #4b5563;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  .slot-wrapper {
+    width: 100%;
+    max-width: 360px;
+    background: #13162a;
+    border-radius: 24px;
+    border: 1px solid #1e2540;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 0 60px rgba(59,130,246,0.07);
+  }
+
+  .slot-header {
+    background: linear-gradient(90deg, #1e3a8a, #1d4ed8);
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .slot-header-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #bfdbfe;
+    letter-spacing: 0.5px;
+  }
+
+  .participants-count {
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .slot-machine {
+    padding: 28px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .slot-window {
+    width: 100%;
+    height: 180px;
+    background: #0d0f1a;
+    border-radius: 16px;
+    border: 2px solid #1e2540;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slot-window::before,
+  .slot-window::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    height: 50px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .slot-window::before {
+    top: 0;
+    background: linear-gradient(to bottom, #0d0f1a, transparent);
+  }
+
+  .slot-window::after {
+    bottom: 0;
+    background: linear-gradient(to top, #0d0f1a, transparent);
+  }
+
+  .slot-highlight {
+    position: absolute;
+    left: 12px; right: 12px;
+    height: 52px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 2px solid #3b82f6;
+    border-radius: 10px;
+    background: rgba(59,130,246,0.07);
+    z-index: 3;
+    pointer-events: none;
+    box-shadow: 0 0 20px rgba(59,130,246,0.15);
+  }
+
+  .slot-reel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    position: absolute;
+    transition: none;
+  }
+
+  .slot-item {
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #9ca3af;
+    width: 100%;
+    padding: 0 24px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .slot-item.active {
+    color: #fff;
+    font-size: 18px;
+  }
+
+  /* Status bar */
+  .status-bar {
+    width: 100%;
+    background: #0d0f1a;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+  }
+
+  .status-text {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.5;
+  }
+
+  .progress-bar-wrap {
+    width: 100%;
+    background: #0d0f1a;
+    border-radius: 6px;
+    height: 6px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #1d4ed8, #3b82f6);
+    border-radius: 6px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* Winner card */
+  .winner-card {
+    width: 100%;
+    max-width: 360px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e2540 100%);
+    border-radius: 20px;
+    padding: 28px 24px;
+    text-align: center;
+    border: 1px solid #3b82f6;
+    box-shadow: 0 0 40px rgba(59,130,246,0.2);
+    display: none;
+    margin-bottom: 20px;
+    animation: fadeIn 0.5s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 40px rgba(59,130,246,0.2); }
+    50% { box-shadow: 0 0 60px rgba(59,130,246,0.4); }
+  }
+
+  .winner-card.show {
+    display: block;
+    animation: fadeIn 0.5s ease, pulse 2s ease 0.5s infinite;
+  }
+
+  .winner-trophy { font-size: 52px; margin-bottom: 12px; }
+  .winner-label { font-size: 12px; color: #93c5fd; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+  .winner-name { font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+  .winner-congrats { font-size: 14px; color: #93c5fd; }
+
+  /* Buttons */
+  .btn {
+    width: 100%;
+    max-width: 360px;
+    padding: 16px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    margin-bottom: 10px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.3);
+  }
+
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .btn-secondary {
+    background: transparent;
+    color: #4b5563;
+    border: 1px solid #1e2540;
+    font-size: 14px;
+  }
+
+  /* Confetti */
+  .confetti-container {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 100;
+    overflow: hidden;
+  }
+
+  .confetti-piece {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    top: -10px;
+    animation: confettiFall linear forwards;
+  }
+
+  @keyframes confettiFall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="logo">
+  <div class="logo-icon">🌐</div>
+  <div class="logo-text">GlobalNet</div>
+</div>
+<div class="event-label">IT Retail &amp; Ecom Day 2026</div>
+
+<div class="slot-wrapper" id="slotWrapper">
+  <div class="slot-header">
+    <span class="slot-header-title">🎰 Розыгрыш приза</span>
+    <span class="participants-count" id="countLabel">12 участников</span>
+  </div>
+  <div class="slot-machine">
+    <div class="slot-window">
+      <div class="slot-highlight"></div>
+      <div class="slot-reel" id="reel"></div>
+    </div>
+    <div class="status-bar">
+      <div>
+        <div class="status-text" id="statusText">Все участники зарегистрированы. Нажмите кнопку для запуска.</div>
+        <div class="progress-bar-wrap" id="progressWrap" style="display:none">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="winner-card" id="winnerCard">
+  <div class="winner-trophy">🏆</div>
+  <div class="winner-label">Победитель розыгрыша</div>
+  <div class="winner-name" id="winnerName"></div>
+  <div class="winner-congrats">Поздравляем! Приз ждёт вас на стенде GlobalNet 🎁</div>
+</div>
+
+<button class="btn btn-primary" id="startBtn" onclick="startLottery()">Запустить розыгрыш</button>
+<button class="btn btn-secondary" id="resetBtn" onclick="resetLottery()" style="display:none">Сбросить</button>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+const participants = [
+  "Александр Петров", "Мария Иванова", "Дмитрий Козлов",
+  "Анна Смирнова", "Сергей Новиков", "Елена Федорова",
+  "Павел Орлов", "Ольга Захарова", "Артём Морозов",
+  "Наталья Волкова", "Игорь Лебедев", "Юлия Соколова",
+];
+
+const messages = [
+  ["🎰 Всё, начинаем! Отступать некуда — розыгрыш запущен!", 10],
+  ["👀 Проверяем, все ли честно зарегистрировались...", 20],
+  ["🤔 Так, так, так... Очень интересные кандидаты.", 32],
+  ["😤 Система пытается выбрать, но все такие достойные. Прокладываем маршрут.", 44],
+  ["☕️ Алгоритм попросил паузу на кофе. Отказали — у нас SLA 99.99%.", 55],
+  ["🌀 Судьба думает... Не торопите судьбу.", 65],
+  ["🛡 Фиксируем подозрительную активность среди болеющих за конкретного участника. Включаем защиту.", 75],
+  ["🎲 Подбрасываем монетку... нет, это несерьёзно. Перезапускаем сервер.", 85],
+  ["🥁 Барабанная дробь, пожалуйста...", 95],
+  ["💥 Packet loss. Просто шутим. Продолжаем.", 99],
+];
+
+let running = false;
+const reel = document.getElementById('reel');
+
+function buildReel(names) {
+  reel.innerHTML = '';
+  // padding items top
+  for (let i = 0; i < 2; i++) {
+    const d = document.createElement('div');
+    d.className = 'slot-item';
+    d.textContent = '';
+    reel.appendChild(d);
+  }
+  names.forEach((n, i) => {
+    const d = document.createElement('div');
+    d.className = 'slot-item' + (i === 0 ? ' active' : '');
+    d.textContent = n;
+    reel.appendChild(d);
+  });
+  for (let i = 0; i < 2; i++) {
+    const d = document.createElement('div');
+    d.className = 'slot-item';
+    d.textContent = '';
+    reel.appendChild(d);
+  }
+}
+
+function setReelName(name) {
+  const items = reel.querySelectorAll('.slot-item');
+  items.forEach(el => { el.className = 'slot-item'; el.textContent = ''; });
+  // center item (index 2)
+  items[2].textContent = name;
+  items[2].className = 'slot-item active';
+  if (items[1]) items[1].textContent = participants[Math.floor(Math.random() * participants.length)];
+  if (items[3]) items[3].textContent = participants[Math.floor(Math.random() * participants.length)];
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function startLottery() {
+  if (running) return;
+  running = true;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('progressWrap').style.display = 'block';
+
+  buildReel(['', '', participants[0], '', '']);
+
+  // Message phase
+  for (const [msg, pct] of messages) {
+    document.getElementById('statusText').textContent = msg;
+    document.getElementById('progressFill').style.width = pct + '%';
+    // animate reel slowly during messages
+    setReelName(participants[Math.floor(Math.random() * participants.length)]);
+    await sleep(msg.includes('Перезагрузка') ? 3200 : 1600);
+  }
+
+  // Spin phase
+  document.getElementById('statusText').textContent = '🎲 Выбираем победителя...';
+  document.getElementById('progressFill').style.width = '100%';
+
+  const delays = [
+    ...Array(14).fill(70),
+    ...Array(8).fill(140),
+    ...Array(6).fill(260),
+    ...Array(4).fill(440),
+    ...Array(3).fill(700),
+    ...Array(2).fill(1000),
+  ];
+
+  for (const d of delays) {
+    setReelName(participants[Math.floor(Math.random() * participants.length)]);
+    await sleep(d);
+  }
+
+  // Winner
+  const winner = participants[Math.floor(Math.random() * participants.length)];
+  setReelName(winner);
+  await sleep(600);
+
+  document.getElementById('winnerName').textContent = winner;
+  document.getElementById('winnerCard').className = 'winner-card show';
+  document.getElementById('statusText').textContent = '✅ Решение принято. Вселенная определилась.';
+
+  launchConfetti();
+
+  document.getElementById('resetBtn').style.display = 'block';
+  document.getElementById('startBtn').style.display = 'none';
+  running = false;
+}
+
+function resetLottery() {
+  running = false;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('startBtn').style.display = 'block';
+  document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('winnerCard').className = 'winner-card';
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('progressWrap').style.display = 'none';
+  document.getElementById('statusText').textContent = 'Все участники зарегистрированы. Нажмите кнопку для запуска.';
+  document.getElementById('confettiContainer').innerHTML = '';
+  buildReel(['', '', participants[0], '', '']);
+}
+
+function launchConfetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#3b82f6', '#60a5fa', '#93c5fd', '#fff', '#1d4ed8', '#fbbf24'];
+  for (let i = 0; i < 80; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      el.style.width = (6 + Math.random() * 6) + 'px';
+      el.style.height = (6 + Math.random() * 6) + 'px';
+      el.style.animationDuration = (2 + Math.random() * 2) + 's';
+      el.style.animationDelay = Math.random() * 0.5 + 's';
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 4500);
+    }, i * 30);
+  }
+}
+
+// Init
+buildReel(['', '', participants[0], '', '']);
+document.getElementById('countLabel').textContent = participants.length + ' участников';
+</script>
+</body>
+</html>
