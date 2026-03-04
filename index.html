@@ -357,9 +357,20 @@ const messages = [
 let running = false;
 const reel = document.getElementById('reel');
 
+// 🔥 ИНИЦИАЛИЗАЦИЯ TELEGRAM WEB APP
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  tg.MainButton.setText('🔄 Обновить').onClick(() => location.reload()).hide();
+  tg.HeaderColor.setColor('#1e3a8a');
+  tg.BackButton.show();
+} else {
+  console.error('Telegram WebApp не доступен');
+}
+
 function buildReel(names) {
   reel.innerHTML = '';
-  // padding items top
   for (let i = 0; i < 2; i++) {
     const d = document.createElement('div');
     d.className = 'slot-item';
@@ -383,33 +394,62 @@ function buildReel(names) {
 function setReelName(name) {
   const items = reel.querySelectorAll('.slot-item');
   items.forEach(el => { el.className = 'slot-item'; el.textContent = ''; });
-  // center item (index 2)
   items[2].textContent = name;
   items[2].className = 'slot-item active';
   if (items[1]) items[1].textContent = participants[Math.floor(Math.random() * participants.length)];
   if (items[3]) items[3].textContent = participants[Math.floor(Math.random() * participants.length)];
 }
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function sleep(ms) { 
+  return new Promise(r => setTimeout(r, ms)); 
+}
+
+// 🔥 НОВАЯ ФУНКЦИЯ - Отправка команды боту
+async function activateDrawForAll() {
+  if (!tg) {
+    alert('❌ Telegram WebApp недоступен');
+    return false;
+  }
+  
+  try {
+    tg.MainButton.setText('⏳ Активация...').show();
+    
+    // ✅ ОТПРАВЛЯЕМ КОМАНДУ БОТУ
+    await tg.sendData(JSON.stringify({
+      action: 'start_draw',
+      timestamp: Date.now()
+    }));
+    
+    tg.showAlert('✅ Розыгрыш активирован для всех пользователей!');
+    tg.MainButton.setText('✅ Готово!').disable();
+    return true;
+  } catch (error) {
+    console.error('Ошибка отправки:', error);
+    tg.showAlert('❌ Ошибка связи с ботом');
+    return false;
+  }
+}
 
 async function startLottery() {
   if (running) return;
+  
+  // 🔥 ПРОВЕРЯЕМ - активирован ли розыгрыш для всех?
+  const activated = await activateDrawForAll();
+  if (!activated) return;
+  
   running = true;
   document.getElementById('startBtn').disabled = true;
   document.getElementById('progressWrap').style.display = 'block';
 
   buildReel(['', '', participants[0], '', '']);
 
-  // Message phase
   for (const [msg, pct] of messages) {
     document.getElementById('statusText').textContent = msg;
     document.getElementById('progressFill').style.width = pct + '%';
-    // animate reel slowly during messages
     setReelName(participants[Math.floor(Math.random() * participants.length)]);
     await sleep(msg.includes('Перезагрузка') ? 3200 : 1600);
   }
 
-  // Spin phase
   document.getElementById('statusText').textContent = '🎲 Выбираем победителя...';
   document.getElementById('progressFill').style.width = '100%';
 
@@ -427,7 +467,6 @@ async function startLottery() {
     await sleep(d);
   }
 
-  // Winner
   const winner = participants[Math.floor(Math.random() * participants.length)];
   setReelName(winner);
   await sleep(600);
@@ -437,7 +476,6 @@ async function startLottery() {
   document.getElementById('statusText').textContent = '✅ Решение принято. Вселенная определилась.';
 
   launchConfetti();
-
   document.getElementById('resetBtn').style.display = 'block';
   document.getElementById('startBtn').style.display = 'none';
   running = false;
@@ -454,6 +492,10 @@ function resetLottery() {
   document.getElementById('statusText').textContent = 'Все участники зарегистрированы. Нажмите кнопку для запуска.';
   document.getElementById('confettiContainer').innerHTML = '';
   buildReel(['', '', participants[0], '', '']);
+  
+  if (tg) {
+    tg.MainButton.hide();
+  }
 }
 
 function launchConfetti() {
