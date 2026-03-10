@@ -494,6 +494,11 @@ async function startLottery() {
   document.getElementById('winnerCard').className = 'winner-card show';
   document.getElementById('statusText').textContent = '✅ Решение принято. Вселенная определилась.';
 
+  document.getElementById('winnerCard').scrollIntoView({
+    behavior: 'smooth',
+    block: 'center'
+  });
+
   launchConfetti();
   document.getElementById('resetBtn').style.display = 'block';
   document.getElementById('startBtn').style.display = 'none';
