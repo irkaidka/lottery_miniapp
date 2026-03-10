@@ -483,8 +483,14 @@ async function startLottery() {
   
   running = true;
   document.getElementById('startBtn').disabled = true;
+  document.getElementById('startBtn').style.display = 'none';
   document.getElementById('progressWrap').style.display = 'block';
 
+  // Автозапуск розыгрыша после загрузки страницы
+  window.addEventListener('load', () => {
+    startLottery();
+  });
+ 
   buildReel(['', '', participants[0], '', '']);
 
   for (const [msg, pct] of messages) {
