@@ -326,6 +326,7 @@
   <div class="winner-trophy">🏆</div>
   <div class="winner-label">Победитель розыгрыша</div>
   <div class="winner-name" id="winnerName"></div>
+  <div class="winner-company" id="winnerCompany" style="font-size:15px; color:#93c5fd; margin-bottom:8px;"></div>
   <div class="winner-congrats">Поздравляем! Приз ждёт вас на стенде GlobalNet 🎁</div>
 </div>
 
@@ -341,6 +342,11 @@ const participants = [
   "Павел Орлов", "Ольга Захарова", "Артём Морозов",
   "Наталья Волкова", "Игорь Лебедев", "Юлия Соколова",
 ];
+
+// Читаем победителя переданного ботом
+const params = new URLSearchParams(window.location.search);
+const winnerFromBot = params.get('winner') || '';
+const companyFromBot = params.get('company') || '';
 
 const messages = [
   ["🎰 Всё, начинаем! Отступать некуда — розыгрыш запущен!", 10],
@@ -468,11 +474,13 @@ async function startLottery() {
     await sleep(d);
   }
 
-  const winner = participants[Math.floor(Math.random() * participants.length)];
+  const winner = winnerFromBot || participants[Math.floor(Math.random() * participants.length)];
   setReelName(winner);
   await sleep(600);
 
   document.getElementById('winnerName').textContent = winner;
+  document.getElementById('winnerCompany').textContent = companyFromBot;
+
   document.getElementById('winnerCard').className = 'winner-card show';
   document.getElementById('statusText').textContent = '✅ Решение принято. Вселенная определилась.';
 
