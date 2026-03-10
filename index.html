@@ -9,8 +9,8 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    background: #0d0f1a;
-    color: #fff;
+    background: radial-gradient(circle at top, #1e3a8a 0%, #0b1220 40%, #020617 100%);
+    color: #f9fafb;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     min-height: 100vh;
     display: flex;
@@ -56,12 +56,12 @@
   .slot-wrapper {
     width: 100%;
     max-width: 360px;
-    background: #13162a;
+    background: rgba(15,23,42,0.92);
     border-radius: 24px;
-    border: 1px solid #1e2540;
+    border: 1px solid #3b82f6;
     overflow: hidden;
     margin-bottom: 20px;
-    box-shadow: 0 0 60px rgba(59,130,246,0.07);
+    box-shadow: 0 0 60px rgba(59,130,246,0.25);
   }
 
   .slot-header {
@@ -210,7 +210,7 @@
   .winner-card {
     width: 100%;
     max-width: 360px;
-    background: linear-gradient(135deg, #1e3a8a 0%, #1e2540 100%);
+    background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 40%, #1e293b 100%);
     border-radius: 20px;
     padding: 28px 24px;
     text-align: center;
@@ -288,6 +288,18 @@
     animation: confettiFall linear forwards;
   }
 
+  body::before {
+   content: "";
+   position: fixed;
+   inset: -40px;
+   background:
+     radial-gradient(circle at 10% 20%, rgba(59,130,246,0.25), transparent 55%),
+     radial-gradient(circle at 90% 80%, rgba(244,114,182,0.22), transparent 55%);
+   opacity: 0.85;
+   pointer-events: none;
+   z-index: -1;
+  }
+ 
   @media (orientation: landscape) {
     body {
       max-width: 700px;
