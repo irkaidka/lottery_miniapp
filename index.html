@@ -429,12 +429,20 @@ function buildReel(names) {
 
 function setReelName(name) {
   const items = reel.querySelectorAll('.slot-item');
-  items.forEach(el => { el.className = 'slot-item'; el.textContent = ''; });
-  items[2].textContent = name;
-  items[2].className = 'slot-item active';
-  if (items[1]) items[1].textContent = participants[Math.floor(Math.random() * participants.length)];
-  if (items[3]) items[3].textContent = participants[Math.floor(Math.random() * participants.length)];
+
+  // Заполняем все строки случайными именами
+  items.forEach((el, index) => {
+    el.className = 'slot-item';
+    el.textContent = participants[Math.floor(Math.random() * participants.length)];
+  });
+
+  // Центрируем победителя в активной строке (индекс 2)
+  if (items[2]) {
+    items[2].textContent = name;
+    items[2].className = 'slot-item active';
+  }
 }
+
 
 function sleep(ms) { 
   return new Promise(r => setTimeout(r, ms)); 
