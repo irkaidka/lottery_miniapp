@@ -288,6 +288,14 @@
     animation: confettiFall linear forwards;
   }
 
+  @media (orientation: landscape) {
+    body {
+      max-width: 700px;
+      margin: 0 auto;
+      transform: scale(1.1);
+    }
+  }
+ 
   @keyframes confettiFall {
     to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
   }
@@ -369,6 +377,8 @@ const tg = window.Telegram?.WebApp;
 if (tg) {
   tg.ready();
   tg.expand();
+  tg.requestFullscreen();
+  tg.lockOrientation();
   tg.MainButton.setText('🔄 Обновить').onClick(() => location.reload()).hide();
   tg.HeaderColor.setColor('#1e3a8a');
   tg.BackButton.show();
