@@ -521,6 +521,13 @@ async function startLottery() {
   document.getElementById('winnerCard').className = 'winner-card show';
   document.getElementById('statusText').textContent = '✅ Решение принято. Вселенная определилась.';
 
+    // Останавливаем крутилку и оставляем только победителя
+  reel.innerHTML = '';
+  const finalItem = document.createElement('div');
+  finalItem.className = 'slot-item active';
+  finalItem.textContent = winner;
+  reel.appendChild(finalItem);
+
   document.getElementById('winnerCard').scrollIntoView({
     behavior: 'smooth',
     block: 'center'
